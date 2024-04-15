@@ -1,0 +1,42 @@
+name: Weekly Meeting
+
+on:
+  schedule:
+    - cron: '0 0 * * 4'
+
+jobs:
+  create-meeting-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get Collaborators
+        id: get_collaborators
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const response = await github.repos.listCollaborators({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            const collaborators = response.data.map(collaborator => collaborator.login);
+            return collaborators.join(',');
+        
+      - name: Create Issue
+        uses: peter-evans/create-issue@v2
+        with:
+          title: 'Weekly Meeting - {{DATE}}'
+          labels: 'meeting'
+          assignees: ${{ steps.get_collaborators.outputs.result }}
+          body: |
+            ## Agenda:
+            - Discuss recent progress
+            - Plan upcoming tasks
+            - Any blockers to address
+
+            ## Details:
+            - **Date:** {{DATE}}
+            - **Time:** [Specify time here]
+            - **Location:** [Specify location here]
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
