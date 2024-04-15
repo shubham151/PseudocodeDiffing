@@ -1,9 +1,12 @@
 name: Weekly Meeting
 
 on:
-  schedule:
-    # - cron: '0 0 * * 1'
-    cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      delay_minutes:
+        description: 'Delay in minutes'
+        required: true
+        default: '5'
 
 jobs:
   create-meeting-issue:
