@@ -6,7 +6,7 @@ on:
       delay_minutes:
         description: 'Delay in minutes'
         required: true
-        default: '5'
+        default: '1'
 
 jobs:
   create-meeting-issue:
