@@ -16,13 +16,18 @@
 package pseudocodediffing;
 
 import java.awt.BorderLayout;
+import java.io.File;
+import java.util.List;
+
 
 import javax.swing.*;
 
 import docking.ActionContext;
 import docking.ComponentProvider;
 import docking.action.DockingAction;
+import docking.action.MenuData;
 import docking.action.ToolBarData;
+import ghidra.app.CorePluginPackage;
 import ghidra.app.ExamplesPluginPackage;
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
@@ -32,13 +37,11 @@ import ghidra.util.HelpLocation;
 import ghidra.util.Msg;
 import resources.Icons;
 
-/**
- * TODO: Provide class-level documentation that describes what this plugin does.
- */
+
 //@formatter:off
 @PluginInfo(
 	status = PluginStatus.STABLE,
-	packageName = ExamplesPluginPackage.NAME,
+	packageName = CorePluginPackage.NAME,
 	category = PluginCategoryNames.EXAMPLES,
 	shortDescription = "Plugin short description goes here.",
 	description = "Plugin long description goes here."
@@ -46,71 +49,43 @@ import resources.Icons;
 //@formatter:on
 public class PseudocodeDiffingPlugin extends ProgramPlugin {
 
-	MyProvider provider;
+    private static final String WINDOW_GROUP = "PseudocodeDiffingPlugin";
+    private static final String ACTION_NAME = "Pseudocode Diffing";
 
-	/**
-	 * Plugin constructor.
-	 * 
-	 * @param tool The plugin tool that this plugin is added to.
-	 */
-	public PseudocodeDiffingPlugin(PluginTool tool) {
-		super(tool);
+    public PseudocodeDiffingPlugin(PluginTool tool) {
+        super(tool);
+    }
 
-		// TODO: Customize provider (or remove if a provider is not desired)
-		String pluginName = getName();
-		provider = new MyProvider(this, pluginName);
+    @Override
+    protected void init() {
+        super.init();
+        createActions();
+    }
 
-		// TODO: Customize help (or remove if help is not desired)
-		String topicName = this.getClass().getPackage().getName();
-		String anchorName = "HelpAnchor";
-		provider.setHelpLocation(new HelpLocation(topicName, anchorName));
-	}
+    private void createActions() {
+        DockingAction action = new DockingAction(ACTION_NAME, getName()) {
+            @Override
+            public void actionPerformed(ActionContext context) {
+                selectFiles();
+            }
+        };
+        action.setMenuBarData(new MenuData(new String[] { "Window", "Pseudocode Diffing" }, null, WINDOW_GROUP));
+        tool.addAction(action);
+    }
 
-	@Override
-	public void init() {
-		super.init();
+    private void selectFiles() {
+        // Use file chooser dialog to prompt user to select two files
+        List<File[]> selectedFilesList = GhidraFileChooserDialog.selectFiles(tool);
+        
+        if (selectedFilesList != null && selectedFilesList.size() == 2) {
+            File[] selectedFiles1 = selectedFilesList.get(0);
+            File[] selectedFiles2 = selectedFilesList.get(1);
+            
+            System.out.println("Selected both files");
+            // processFiles(selectedFiles1[0], selectedFiles2[0]);
+        } else {
+            Msg.showError(this, null, "Error", "Please select exactly two files.");
+        }
+    }
 
-		// TODO: Acquire services if necessary
-	}
-
-	// TODO: If provider is desired, it is recommended to move it to its own file
-	private static class MyProvider extends ComponentProvider {
-
-		private JPanel panel;
-		private DockingAction action;
-
-		public MyProvider(Plugin plugin, String owner) {
-			super(plugin.getTool(), owner, owner);
-			buildPanel();
-			createActions();
-		}
-
-		// Customize GUI
-		private void buildPanel() {
-			panel = new JPanel(new BorderLayout());
-			JTextArea textArea = new JTextArea(5, 25);
-			textArea.setEditable(false);
-			panel.add(new JScrollPane(textArea));
-			setVisible(true);
-		}
-
-		// TODO: Customize actions
-		private void createActions() {
-			action = new DockingAction("My Action", getName()) {
-				@Override
-				public void actionPerformed(ActionContext context) {
-					Msg.showInfo(getClass(), panel, "Custom Action", "Hello!");
-				}
-			};
-			action.setToolBarData(new ToolBarData(Icons.ADD_ICON, null));
-			action.setEnabled(true);
-			action.markHelpUnnecessary();
-			dockingTool.addLocalAction(this, action);
-		}
-
-		@Override
-		public JComponent getComponent() {
-			return panel;
-		}
-	}
 }
