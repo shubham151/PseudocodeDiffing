@@ -199,7 +199,7 @@ public class DualFileComponentProvider extends ComponentProvider {
         try {
             if (pair.program1 != null && pair.entry1 != null) {
                 // Build the CFG for file1
-                PseudocodeDiffingPlugin plugin = (PseudocodeDiffingPlugin) getTool().getService(
+                PseudocodeDiffingPlugin plugin = getTool().getService(
                     PseudocodeDiffingPlugin.class
                 );
                 if (plugin != null) {
